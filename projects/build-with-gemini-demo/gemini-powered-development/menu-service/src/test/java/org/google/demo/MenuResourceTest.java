@@ -80,4 +80,23 @@ public class MenuResourceTest {
         .body("id", notNullValue())
         .body("itemName", is("Test Item"));
   }
+
+  /** Tests the search of a menu item. */
+  @Test
+  public void testSearchMenu() {
+    Menu menu = new Menu();
+    menu.itemName = "Test Item";
+
+    Mockito.when(menuRepository.list("itemName like ?1", "%Test%"))
+        .thenReturn(Collections.singletonList(menu));
+
+    given()
+        .queryParam("name", "Test")
+        .when()
+        .get("/menu/search")
+        .then()
+        .statusCode(200)
+        .body("size()", is(1))
+        .body("[0].itemName", is("Test Item"));
+  }
 }

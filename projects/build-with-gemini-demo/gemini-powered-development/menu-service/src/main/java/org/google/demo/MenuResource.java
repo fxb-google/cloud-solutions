@@ -24,6 +24,7 @@ import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -60,6 +61,18 @@ public class MenuResource {
   @Path("{id}")
   public Menu get(@PathParam("id") Long id) throws Exception {
     return menuRepository.findById(id);
+  }
+
+  /**
+   * Search for menu items by item name.
+   *
+   * @param name the partial name to search for
+   * @return a list of menu items
+   */
+  @GET
+  @Path("/search")
+  public List<Menu> search(@QueryParam("name") String name) {
+    return menuRepository.list("itemName like ?1", "%" + name + "%");
   }
 
   /**
