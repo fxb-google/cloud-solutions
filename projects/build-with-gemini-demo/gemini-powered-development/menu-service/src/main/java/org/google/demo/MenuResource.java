@@ -124,7 +124,7 @@ public class MenuResource {
       throw new WebApplicationException("id != null");
     }
     menu.status = Status.Processing;
-    if (menu.rating == null || menu.rating < 1 || menu.rating > 5) {
+    if (menu.rating != null && (menu.rating < 1 || menu.rating > 5)) {
       throw new WebApplicationException("Rating must be between 1 and 5", 400);
     }
     menuRepository.persist(menu);
