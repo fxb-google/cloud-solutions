@@ -91,7 +91,7 @@ public class MenuResourceTest {
     Menu menu = new Menu();
     menu.itemName = "Test Item";
 
-    Mockito.when(menuRepository.list("itemName like ?1", "%Test%"))
+    Mockito.when(menuRepository.list("lower(itemName) like ?1", "%test%"))
         .thenReturn(Collections.singletonList(menu));
 
     given()
