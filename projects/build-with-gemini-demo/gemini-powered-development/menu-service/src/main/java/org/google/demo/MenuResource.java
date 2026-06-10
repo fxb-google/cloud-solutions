@@ -124,6 +124,9 @@ public class MenuResource {
       throw new WebApplicationException("id != null");
     }
     menu.status = Status.Processing;
+    if (menu.rating == null || menu.rating < 1 || menu.rating > 5) {
+      throw new WebApplicationException("Rating must be between 1 and 5", 400);
+    }
     menuRepository.persist(menu);
     return Response.ok(menu).status(200).build();
   }
@@ -153,6 +156,15 @@ public class MenuResource {
     }
     if (menu.tagLine != null) {
       entity.tagLine = menu.tagLine;
+    }
+    if (menu.description != null) {
+      entity.description = menu.description;
+    }
+    if (menu.rating != null) {
+      if (menu.rating < 1 || menu.rating > 5) {
+        throw new WebApplicationException("Rating must be between 1 and 5", 400);
+      }
+      entity.rating = menu.rating;
     }
     entity.spiceLevel = menu.spiceLevel;
     if (menu.itemImageUrl != null) {
