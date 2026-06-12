@@ -45,6 +45,8 @@ public class MenuResourceTest {
     menu.itemImageUrl = null; // Set to null or a valid URL
     menu.itemThumbnailUrl = null; // Set to null or a valid URL
     menu.status = Status.Ready;
+    menu.description = "Test Description";
+    menu.rating = 4;
 
     Mockito.when(menuRepository.findById(1L)).thenReturn(menu);
     Mockito.when(menuRepository.listAll()).thenReturn(Collections.singletonList(menu));
@@ -58,7 +60,7 @@ public class MenuResourceTest {
         .persist(any(Menu.class));
   }
 
-  /** Tests the creation of a menu item. */
+  /** Tests the creation of a menu item with valid rating and description. */
   @Test
   public void testCreateMenu() {
     Menu menu = new Menu();
@@ -66,9 +68,11 @@ public class MenuResourceTest {
     menu.itemPrice = java.math.BigDecimal.valueOf(10.0);
     menu.spiceLevel = 1;
     menu.tagLine = "Test Tagline";
-    menu.itemImageUrl = null; // Set to null or a valid URL
-    menu.itemThumbnailUrl = null; // Set to null or a valid URL
+    menu.itemImageUrl = null;
+    menu.itemThumbnailUrl = null;
     menu.status = Status.Ready;
+    menu.description = "Test Description";
+    menu.rating = 4;
 
     given()
         .contentType(ContentType.JSON)
@@ -78,6 +82,101 @@ public class MenuResourceTest {
         .then()
         .statusCode(200)
         .body("id", notNullValue())
-        .body("itemName", is("Test Item"));
+        .body("itemName", is("Test Item"))
+        .body("description", is("Test Description"))
+        .body("rating", is(4));
+  }
+
+  /** Tests that creating a menu item without a rating fails. */
+  @Test
+  public void testCreateMenuNullRating() {
+    Menu menu = new Menu();
+    menu.itemName = "Test Item";
+    menu.itemPrice = java.math.BigDecimal.valueOf(10.0);
+    menu.spiceLevel = 1;
+    menu.tagLine = "Test Tagline";
+    menu.description = "Test Description";
+    menu.rating = null; // null rating
+
+    given()
+        .contentType(ContentType.JSON)
+        .body(menu)
+        .when()
+        .post("/menu")
+        .then()
+        .statusCode(400);
+  }
+
+  /** Tests that creating a menu item with rating = 0 fails. */
+  @Test
+  public void testCreateMenuZeroRating() {
+    Menu menu = new Menu();
+    menu.itemName = "Test Item";
+    menu.itemPrice = java.math.BigDecimal.valueOf(10.0);
+    menu.spiceLevel = 1;
+    menu.tagLine = "Test Tagline";
+    menu.description = "Test Description";
+    menu.rating = 0; // rating < 1
+
+    given()
+        .contentType(ContentType.JSON)
+        .body(menu)
+        .when()
+        .post("/menu")
+        .then()
+        .statusCode(400);
+  }
+
+  /** Tests that creating a menu item with rating = 6 fails. */
+  @Test
+  public void testCreateMenuInvalidRatingHigh() {
+    Menu menu = new Menu();
+    menu.itemName = "Test Item";
+    menu.itemPrice = java.math.BigDecimal.valueOf(10.0);
+    menu.spiceLevel = 1;
+    menu.tagLine = "Test Tagline";
+    menu.description = "Test Description";
+    menu.rating = 6; // rating > 5
+
+    given()
+        .contentType(ContentType.JSON)
+        .body(menu)
+        .when()
+        .post("/menu")
+        .then()
+        .statusCode(400);
+  }
+
+  /** Tests updating a menu item with valid rating and description. */
+  @Test
+  public void testUpdateMenuSuccess() {
+    Menu menu = new Menu();
+    menu.description = "Updated Description";
+    menu.rating = 5;
+
+    given()
+        .contentType(ContentType.JSON)
+        .body(menu)
+        .when()
+        .put("/menu/1")
+        .then()
+        .statusCode(200)
+        .body("description", is("Updated Description"))
+        .body("rating", is(5));
+  }
+
+  /** Tests updating a menu item with an invalid rating (e.g., 0). */
+  @Test
+  public void testUpdateMenuInvalidRating() {
+    Menu menu = new Menu();
+    menu.rating = 0; // Invalid rating
+
+    given()
+        .contentType(ContentType.JSON)
+        .body(menu)
+        .when()
+        .put("/menu/1")
+        .then()
+        .statusCode(400);
   }
 }
