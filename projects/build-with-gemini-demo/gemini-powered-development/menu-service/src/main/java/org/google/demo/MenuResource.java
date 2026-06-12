@@ -110,6 +110,12 @@ public class MenuResource {
     if (menu == null || menu.id != null) {
       throw new WebApplicationException("id != null");
     }
+    if (menu.rating == null) {
+      throw new WebApplicationException("Rating is required and cannot be null", 400);
+    }
+    if (menu.rating < 1 || menu.rating > 5) {
+      throw new WebApplicationException("Rating must be an integer between 1 and 5", 400);
+    }
     menu.status = Status.Processing;
     menuRepository.persist(menu);
     return Response.ok(menu).status(200).build();
@@ -150,6 +156,15 @@ public class MenuResource {
     }
     if (menu.status != null) {
       entity.status = menu.status;
+    }
+    if (menu.description != null) {
+      entity.description = menu.description;
+    }
+    if (menu.rating != null) {
+      if (menu.rating < 1 || menu.rating > 5) {
+        throw new WebApplicationException("Rating must be an integer between 1 and 5", 400);
+      }
+      entity.rating = menu.rating;
     }
 
     return entity;
